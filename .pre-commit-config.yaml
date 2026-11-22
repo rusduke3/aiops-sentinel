@@ -1,0 +1,14 @@
+repos:
+  - repo: local
+    hooks:
+      - id: bandit
+        name: Bandit SAST Security Check
+        entry: .venv/Scripts/bandit.exe -r app/ -ll
+        language: system
+        pass_filenames: false
+
+      - id: block-secrets-files
+        name: Block .env and private configs
+        entry: python -c "import sys; bad=[f for f in sys.argv[1:] if f.endswith('.env') or f.endswith('.pem') or f.endswith('.key')]; sys.exit(1 if bad else 0)"
+        language: system
+        pass_filenames: true

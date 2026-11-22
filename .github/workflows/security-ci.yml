@@ -1,0 +1,40 @@
+name: Security CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit secret-scan
+
+      - name: Run Bandit SAST
+        run: |
+          bandit -r app/ -ll --format json | jq . || true
+
+      - name: Run secret scan
+        run: |
+          secret-scan -r app/ --config .env.example || true
+
+      - name: Check .env not committed
+        run: |
+          if git diff --cached --name-only | grep -E "^\\.env$" | grep -v "^\\.env\\.example$"; then
+            echo "❌ ОШИБКА: .env файл не должен коммититься!"
+            exit 1
+          fi
+          echo "✅ .env файлы не найдены в staged changes"

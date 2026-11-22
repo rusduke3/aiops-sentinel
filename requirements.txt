@@ -1,0 +1,10 @@
+# AIOps Sentinel — минимальные зависимости
+# Установка: pip install -r requirements.txt
+
+pydantic>=2.7.0
+pydantic-settings>=2.2.0
+pyyaml>=6.0.1
+requests>=2.32.3
+docker>=7.1.0
+kafka-python>=2.0.2
+python-dotenv>=1.0.1

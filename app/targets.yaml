@@ -1,0 +1,50 @@
+# AIOps Sentinel — декларативная конфигурация целей мониторинга
+# Все чувствительные значения подставляются из переменных окружения через ${VAR}
+
+# Глобальные настройки по умолчанию (переопределяются в конкретных целях)
+defaults:
+  interval_sec: 60
+  timeout_sec: 10
+  retries: 2
+
+# Пороговые значения системных ресурсов (в процентах)
+resources:
+  cpu_threshold: 85
+  ram_threshold: 85
+  gpu_threshold: 90
+
+# Список целей мониторинга
+targets:
+  # HTTP healthcheck для mom-pipeline
+  - name: mom-pipeline
+    type: http
+    url: http://localhost:8000/health
+    timeout_sec: 10
+    expect_status: 200
+
+  # HTTP healthcheck для Ollama
+  - name: ollama
+    type: http
+    url: http://localhost:11434/api/tags
+    timeout_sec: 10
+    expect_status: 200
+
+  # Проверка Docker-контейнера mom-kafka
+  - name: mom-kafka
+    type: docker
+    container: mom-kafka
+    expect_state: running
+
+  # Проверка Docker-контейнера mom-redis
+  - name: mom-redis
+    type: docker
+    container: mom-redis
+    expect_state: running
+
+  # Проверка DLQ-топика в Kafka
+  - name: kafka-dlq
+    type: kafka_dlq
+    bootstrap_servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    topic: ${KAFKA_DLQ_TOPIC}
+    max_lag: 100          # алерт, если consumer lag превышает это значение
+    max_messages: 50      # алерт, если глубина DLQ превышает это значение
