@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+.vscode/
+.rooignore
+.venv/
+__pycache__/
+*.log
